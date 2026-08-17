@@ -121,7 +121,6 @@ export const BUILT_IN_CARS: Model3D[] = [
   },
   {
     id: "builtin-car",
-
     name: "Ergoninane Fast 74",
     url: carDefault.url,
     builtIn: true,
