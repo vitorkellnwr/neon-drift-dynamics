@@ -258,6 +258,49 @@ export const BUILT_IN_TRACKS: Model3D[] = [
 ];
 
 
+BUILT_IN_TRACKS.push(
+  {
+    id: "track-downtown-loop",
+    name: "Centro Noturno",
+    url: "",
+    builtIn: true,
+    kind: "procedural",
+    proceduralId: "downtown-loop",
+    tagline: "Quarteirões de arranha-céus · circuito urbano",
+    ambience: "night-neon",
+  },
+  {
+    id: "track-airfield",
+    name: "Aeroporto Abandonado",
+    url: "",
+    builtIn: true,
+    kind: "procedural",
+    proceduralId: "airfield",
+    tagline: "Pista larga · gymkhana livre",
+    ambience: "harbor-night",
+  },
+  {
+    id: "track-canyon-run",
+    name: "Canyon Run",
+    url: "",
+    builtIn: true,
+    kind: "procedural",
+    proceduralId: "canyon-run",
+    tagline: "Desfiladeiro ao amanhecer · curvas longas",
+    ambience: "canyon-dawn",
+  },
+  {
+    id: "track-snow-pass",
+    name: "Serra Nevada",
+    url: "",
+    builtIn: true,
+    kind: "procedural",
+    proceduralId: "snow-pass",
+    tagline: "Neve · pouca aderência",
+    ambience: "snow-night",
+  },
+);
+
 export const DEFAULT_CAR = BUILT_IN_CARS[0]!;
 export const DEFAULT_TRACK = BUILT_IN_TRACKS[0]!;
 
