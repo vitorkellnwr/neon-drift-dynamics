@@ -862,8 +862,9 @@ export default function RaceScene({
       dpr={[1, 2]}
       gl={{ antialias: true, powerPreference: "high-performance" }}
       onCreated={({ gl }) => {
-        gl.toneMapping = THREE.ACESFilmicToneMapping;
-        gl.toneMappingExposure = 1.05;
+        gl.toneMapping = THREE.AgXToneMapping;
+        gl.toneMappingExposure = 0.78;
+        gl.shadowMap.type = THREE.PCFSoftShadowMap;
       }}
     >
       <color attach="background" args={[ambience.background]} />
