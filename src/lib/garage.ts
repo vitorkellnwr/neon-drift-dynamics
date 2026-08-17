@@ -93,7 +93,36 @@ export const BASE_TUNE: CarTune = { maxSpeed: 68, accel: 30, grip: 1, steer: 1 }
 
 export const BUILT_IN_CARS: Model3D[] = [
   {
+  {
+    id: "builtin-skyline-r34",
+    name: "Nissan Skyline GT-R R34",
+    url: skylineR34.url,
+    builtIn: true,
+    tagline: "Ícone JDM · tração total e estabilidade",
+    paint: "#3a6bff",
+    tune: { maxSpeed: 82, accel: 37, grip: 1.2, steer: 1.05 },
+  },
+  {
+    id: "builtin-silvia-cwest",
+    name: "Nissan Silvia S15 C-West",
+    url: silviaCwest.url,
+    builtIn: true,
+    tagline: "Kit C-West · rei do drift",
+    paint: "#ff3ba7",
+    tune: { maxSpeed: 74, accel: 34, grip: 0.68, steer: 1.25 },
+  },
+  {
+    id: "builtin-silvia-mak",
+    name: "Silvia S15 Garage Mak",
+    url: silviaMak.url,
+    builtIn: true,
+    tagline: "Widebody Garage Mak · traseira solta",
+    paint: "#b6ff3a",
+    tune: { maxSpeed: 76, accel: 35, grip: 0.6, steer: 1.3 },
+  },
+  {
     id: "builtin-car",
+
     name: "Ergoninane Fast 74",
     url: carDefault.url,
     builtIn: true,
