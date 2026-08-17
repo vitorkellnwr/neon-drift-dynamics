@@ -471,8 +471,282 @@ function buildDriftStadium() {
   return group;
 }
 
+/** Night city blocks with lit windows and a wide street grid. */
+function buildDowntownLoop() {
+  const group = new THREE.Group();
+  const size = 720;
+  group.add(groundPlane(size, asphalt("#0c0f16")));
+
+  const street = 60;
+  const block = 110;
+  const concrete = new THREE.MeshStandardMaterial({
+    color: "#1a1f2b",
+    roughness: 0.85,
+    metalness: 0.1,
+  });
+  const glass = new THREE.MeshStandardMaterial({
+    color: "#0e1626",
+    roughness: 0.18,
+    metalness: 0.85,
+    emissive: new THREE.Color("#2a4a7a"),
+    emissiveIntensity: 0.35,
+  });
+
+  for (let ix = -2; ix <= 2; ix++) {
+    for (let iz = -2; iz <= 2; iz++) {
+      const cx = ix * (block + street);
+      const cz = iz * (block + street);
+      const towers = 2 + Math.floor(Math.random() * 2);
+      for (let t = 0; t < towers; t++) {
+        const w = 26 + Math.random() * 30;
+        const d = 26 + Math.random() * 30;
+        const h = 40 + Math.random() * 90;
+        const tower = new THREE.Mesh(
+          new THREE.BoxGeometry(w, h, d),
+          Math.random() > 0.45 ? glass : concrete,
+        );
+        tower.position.set(
+          cx + (Math.random() - 0.5) * (block - w),
+          h / 2,
+          cz + (Math.random() - 0.5) * (block - d),
+        );
+        tower.castShadow = true;
+        tower.receiveShadow = true;
+        group.add(tower);
+      }
+      // Sidewalk kerb ring around the block.
+      neonStripe(group, "#1e2a3d", cx, cz, block, block);
+    }
+  }
+
+  // Lane markings down the avenues.
+  for (let i = -2; i <= 2; i++) {
+    neonStripe(group, "#2b3346", i * (block + street), 0, 0.5, size * 0.9);
+    neonStripe(group, "#2b3346", 0, i * (block + street), size * 0.9, 0.5);
+  }
+
+  // Street lamps.
+  const lamp = new THREE.MeshStandardMaterial({ color: "#2b3245", metalness: 0.6, roughness: 0.5 });
+  for (let i = -3; i <= 3; i++) {
+    for (const z of [-1, 1]) {
+      const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.7, 12, 8), lamp);
+      pole.position.set(i * 80, 6, z * 200);
+      group.add(pole);
+      const head = new THREE.Mesh(new THREE.BoxGeometry(3, 0.6, 1.4), neon("#ffd9a0"));
+      head.position.set(i * 80, 12, z * 200);
+      group.add(head);
+    }
+  }
+
+  const wall = wallMaterial("#242c40");
+  const half = size / 2 - 8;
+  wallBox(group, wall, 0, -half, size - 10, 2, 5);
+  wallBox(group, wall, 0, half, size - 10, 2, 5);
+  wallBox(group, wall, -half, 0, 2, size - 10, 5);
+  wallBox(group, wall, half, 0, 2, size - 10, 5);
+
+  return group;
+}
+
+/** Wide abandoned runway with cone gymkhana layout. */
+function buildAirfield() {
+  const group = new THREE.Group();
+  group.add(groundPlane(900, new THREE.MeshStandardMaterial({ color: "#0b0e14", roughness: 1 })));
+
+  const runway = new THREE.Mesh(new THREE.PlaneGeometry(120, 720), asphalt("#171a21"));
+  runway.rotation.x = -Math.PI / 2;
+  runway.position.y = 0.01;
+  runway.receiveShadow = true;
+  group.add(runway);
+
+  const taxiway = new THREE.Mesh(new THREE.PlaneGeometry(560, 90), asphalt("#151920"));
+  taxiway.rotation.x = -Math.PI / 2;
+  taxiway.position.set(0, 0.011, 200);
+  group.add(taxiway);
+
+  // Runway centre dashes and threshold bars.
+  for (let i = -16; i <= 16; i++) {
+    neonStripe(group, "#d8d3b4", 0, i * 20, 1.2, 10);
+  }
+  for (let i = -4; i <= 4; i++) {
+    neonStripe(group, "#d8d3b4", i * 10, -330, 2.4, 40);
+    neonStripe(group, "#d8d3b4", i * 10, 330, 2.4, 40);
+  }
+
+  // Cone slalom + donut circles.
+  for (let i = 0; i < 18; i++) {
+    const cone = new THREE.Mesh(new THREE.ConeGeometry(1.6, 3.4, 12), neon("#ff9d3b"));
+    cone.position.set(i % 2 === 0 ? -22 : 22, 1.7, -280 + i * 32);
+    group.add(cone);
+  }
+  for (const [x, z] of [
+    [-140, 200],
+    [140, 200],
+  ] as Array<[number, number]>) {
+    const ring = new THREE.Mesh(new THREE.RingGeometry(22, 23.4, 64), neon("#22e6ff"));
+    ring.rotation.x = -Math.PI / 2;
+    ring.position.set(x, 0.05, z);
+    group.add(ring);
+  }
+
+  // Hangars along the taxiway.
+  const hangar = new THREE.MeshStandardMaterial({
+    color: "#2c3243",
+    roughness: 0.6,
+    metalness: 0.45,
+  });
+  for (const x of [-230, -100, 100, 230]) {
+    const shell = new THREE.Mesh(new THREE.CylinderGeometry(30, 30, 70, 24, 1, true, 0, Math.PI), hangar);
+    shell.rotation.z = Math.PI / 2;
+    shell.rotation.y = Math.PI / 2;
+    shell.position.set(x, 0, 300);
+    shell.castShadow = true;
+    shell.receiveShadow = true;
+    group.add(shell);
+  }
+
+  // Perimeter fence.
+  const fence = wallMaterial("#2a3245");
+  const half = 420;
+  wallBox(group, fence, 0, -half, 840, 1.5, 4);
+  wallBox(group, fence, 0, half, 840, 1.5, 4);
+  wallBox(group, fence, -half, 0, 1.5, 840, 4);
+  wallBox(group, fence, half, 0, 1.5, 840, 4);
+
+  return group;
+}
+
+/** Long sweeping canyon road between rock walls. */
+function buildCanyonRun() {
+  const group = new THREE.Group();
+
+  const points: THREE.Vector3[] = [];
+  for (let i = 0; i <= 14; i++) {
+    const t = i / 14;
+    points.push(
+      new THREE.Vector3(
+        Math.sin(t * Math.PI * 2.4) * 150,
+        18 - t * 18,
+        -420 + t * 840,
+      ),
+    );
+  }
+  const curve = new THREE.CatmullRomCurve3(points, false, "catmullrom", 0.5);
+
+  const width = 22;
+  group.add(roadFromCurve(curve, width, 800, "#22201d"));
+  centerDashes(group, curve, 220);
+
+  const sand = groundPlane(1800, new THREE.MeshStandardMaterial({ color: "#4a3a2c", roughness: 1 }));
+  sand.position.y = -1.2;
+  group.add(sand);
+
+  // Canyon cliffs hugging both sides of the ribbon.
+  const rock = new THREE.MeshStandardMaterial({ color: "#6b4a34", roughness: 0.98 });
+  for (let i = 0; i < 160; i++) {
+    const t = i / 160;
+    const point = curve.getPointAt(Math.min(t, 0.999));
+    const tangent = curve.getTangentAt(Math.min(t, 0.999));
+    const side = new THREE.Vector3()
+      .crossVectors(tangent, new THREE.Vector3(0, 1, 0))
+      .normalize();
+    for (const sign of [-1, 1]) {
+      const h = 22 + Math.random() * 40;
+      const mesh = new THREE.Mesh(
+        new THREE.DodecahedronGeometry(11 + Math.random() * 9, 0),
+        rock,
+      );
+      mesh.scale.set(1, h / 22, 1);
+      mesh.position.set(
+        point.x + side.x * sign * (width / 2 + 12 + Math.random() * 8),
+        point.y + h / 4,
+        point.z + side.z * sign * (width / 2 + 12 + Math.random() * 8),
+      );
+      mesh.rotation.y = Math.random() * Math.PI;
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      group.add(mesh);
+    }
+  }
+
+  railsAlongCurve(group, curve, width, 180, wallMaterial("#54402f"), 1.2);
+
+  return group;
+}
+
+/** Snowy mountain pass: low grip vibes, pine forest, ice patches. */
+function buildSnowPass() {
+  const group = new THREE.Group();
+
+  const points: THREE.Vector3[] = [];
+  for (let i = 0; i <= 12; i++) {
+    const t = i / 12;
+    points.push(
+      new THREE.Vector3(
+        (i % 2 === 0 ? -1 : 1) * (90 - t * 30),
+        50 - t * 50,
+        -300 + t * 600,
+      ),
+    );
+  }
+  const curve = new THREE.CatmullRomCurve3(points, false, "catmullrom", 0.45);
+
+  const width = 18;
+  group.add(roadFromCurve(curve, width, 800, "#20242d"));
+  centerDashes(group, curve, 200);
+  railsAlongCurve(group, curve, width, 200, wallMaterial("#5a6478"), 1.3);
+
+  // Snow banks and slopes.
+  const snow = new THREE.MeshStandardMaterial({ color: "#cdd8e6", roughness: 0.95 });
+  const ground = groundPlane(1600, snow);
+  ground.position.y = -22;
+  group.add(ground);
+
+  for (let i = 0; i < 150; i++) {
+    const t = i / 150;
+    const point = curve.getPointAt(Math.min(t, 0.999));
+    const side = i % 2 === 0 ? -1 : 1;
+    const mound = new THREE.Mesh(new THREE.SphereGeometry(8 + Math.random() * 12, 12, 8), snow);
+    mound.position.set(
+      point.x + side * (16 + Math.random() * 26),
+      point.y - 4,
+      point.z + (Math.random() - 0.5) * 30,
+    );
+    mound.receiveShadow = true;
+    group.add(mound);
+  }
+
+  // Pine trees.
+  const trunk = new THREE.MeshStandardMaterial({ color: "#3a2d22", roughness: 1 });
+  const needles = new THREE.MeshStandardMaterial({ color: "#1e3a2b", roughness: 0.9 });
+  for (let i = 0; i < 90; i++) {
+    const t = i / 90;
+    const point = curve.getPointAt(Math.min(t, 0.999));
+    const side = i % 2 === 0 ? -1 : 1;
+    const x = point.x + side * (34 + Math.random() * 60);
+    const z = point.z + (Math.random() - 0.5) * 50;
+    const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 1, 6, 6), trunk);
+    stem.position.set(x, point.y + 1, z);
+    group.add(stem);
+    const top = new THREE.Mesh(new THREE.ConeGeometry(4.5, 14, 8), needles);
+    top.position.set(x, point.y + 10, z);
+    top.castShadow = true;
+    group.add(top);
+  }
+
+  return group;
+}
+
 export function buildProceduralTrack(id: ProceduralTrackId): THREE.Group {
   switch (id) {
+    case "downtown-loop":
+      return buildDowntownLoop();
+    case "airfield":
+      return buildAirfield();
+    case "canyon-run":
+      return buildCanyonRun();
+    case "snow-pass":
+      return buildSnowPass();
     case "donut-pad":
       return buildDonutPad();
     case "figure-eight":
