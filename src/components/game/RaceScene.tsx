@@ -653,6 +653,14 @@ function Car({
       }
     }
 
+    // --- Wheels: roll with speed, front axle steers with the input ---
+    updateWheels(wheels, {
+      speed: car.speed,
+      steer: steerInput,
+      delta,
+      scale: model.scale.x,
+    });
+
 
     // --- Tyre smoke, rubber marks and engine audio ---
     const rearLeft = car.position
