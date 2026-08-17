@@ -27,7 +27,13 @@ export type Model3D = {
   ambience?: Ambience;
 };
 
-export type Ambience = "night-neon" | "dusk-mountain" | "harbor-night" | "stadium";
+export type Ambience =
+  | "night-neon"
+  | "dusk-mountain"
+  | "harbor-night"
+  | "stadium"
+  | "canyon-dawn"
+  | "snow-night";
 
 
 export type ProceduralTrackId =
@@ -36,7 +42,11 @@ export type ProceduralTrackId =
   | "figure-eight"
   | "touge-pass"
   | "harbor-night"
-  | "drift-stadium";
+  | "drift-stadium"
+  | "downtown-loop"
+  | "airfield"
+  | "canyon-run"
+  | "snow-pass";
 
 export type Finish = "gloss" | "matte" | "chrome";
 
