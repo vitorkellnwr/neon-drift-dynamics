@@ -743,32 +743,35 @@ function Car({
       <primitive object={model} visible={!firstPerson} />
       {/* Underglow pool on the asphalt */}
       <pointLight
-        position={[0, 0.35, 0]}
-        intensity={18}
-        distance={9}
+        position={[0, 0.3, 0]}
+        intensity={3.2}
+        distance={6}
+        decay={2}
         color={customization.underglow}
       />
       {/* Tail lights */}
-      <pointLight position={[0, 0.6, 2.4]} intensity={9} distance={7} color="#ff2d55" />
+      <pointLight position={[0, 0.6, 2.4]} intensity={1.6} distance={4.5} decay={2} color="#ff2d55" />
       {headlights && (
         <>
           <spotLight
             position={[0.7, 0.75, -1.9]}
             target-position={[3, -1, -40]}
-            angle={0.55}
-            penumbra={0.6}
-            intensity={260}
-            distance={90}
-            color="#fff2d0"
+            angle={0.5}
+            penumbra={0.75}
+            intensity={90}
+            distance={70}
+            decay={2}
+            color="#ffeccb"
           />
           <spotLight
             position={[-0.7, 0.75, -1.9]}
             target-position={[-3, -1, -40]}
-            angle={0.55}
-            penumbra={0.6}
-            intensity={260}
-            distance={90}
-            color="#fff2d0"
+            angle={0.5}
+            penumbra={0.75}
+            intensity={90}
+            distance={70}
+            decay={2}
+            color="#ffeccb"
           />
         </>
       )}
