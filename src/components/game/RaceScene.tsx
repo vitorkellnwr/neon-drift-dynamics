@@ -275,7 +275,7 @@ function Car({
   spawn,
   controlsRef,
   arduinoRef,
-  firstPerson,
+  cameraMode,
   fx,
   audio,
   headlights,
@@ -288,7 +288,7 @@ function Car({
   spawn: THREE.Vector3;
   controlsRef: React.RefObject<Record<string, boolean>>;
   arduinoRef: React.RefObject<ArduinoInput>;
-  firstPerson: boolean;
+  cameraMode: CameraMode;
   fx: Fx;
   audio: CarAudio;
   headlights: boolean;
@@ -301,12 +301,15 @@ function Car({
     applyPaint(group, customization);
     return group;
   }, [scene, customization]);
+  const wheels = useMemo(() => setupWheels(model), [model]);
   const body = useRef<THREE.Group>(null);
   const camera = useThree((state) => state.camera);
   const tuneRef = useRef(tune);
   tuneRef.current = tune;
-  const firstPersonRef = useRef(firstPerson);
-  firstPersonRef.current = firstPerson;
+  const cameraModeRef = useRef(cameraMode);
+  cameraModeRef.current = cameraMode;
+  const firstPerson = cameraMode === "cockpit";
+
 
   const state = useRef({
     position: spawn.clone(),
