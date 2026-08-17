@@ -76,9 +76,9 @@ const AMBIENCE: Record<Ambience, AmbiencePreset> = {
   "dusk-mountain": {
     background: "#1b2436",
     fog: ["#26314a", 120, 900],
-    hemi: { intensity: 0.6, sky: "#e8bb95", ground: "#1a1f2d" },
-    ambient: 0.16,
-    sun: { position: [-160, 60, 120], intensity: 1.3, color: "#f0a068" },
+    hemi: { intensity: 1.0, sky: "#e8bb95", ground: "#242a3a" },
+    ambient: 0.3,
+    sun: { position: [-160, 60, 120], intensity: 2.0, color: "#f0a068" },
     rim: { position: [120, 40, -140], intensity: 0.3, color: "#6f8cff" },
     sky: { sunPosition: [-0.7, 0.06, 0.4], turbidity: 8, rayleigh: 3.2 },
     headlights: true,
@@ -865,7 +865,7 @@ export default function RaceScene({
       gl={{ antialias: true, powerPreference: "high-performance" }}
       onCreated={({ gl }) => {
         gl.toneMapping = THREE.AgXToneMapping;
-        gl.toneMappingExposure = 0.78;
+        gl.toneMappingExposure = 1.15;
         gl.shadowMap.type = THREE.PCFSoftShadowMap;
       }}
     >
@@ -930,7 +930,7 @@ export default function RaceScene({
           onTelemetry={reportTelemetry}
         />
       )}
-      <Environment preset={ambience.sky ? "sunset" : "night"} environmentIntensity={0.28} />
+      <Environment preset={ambience.sky ? "sunset" : "night"} environmentIntensity={0.45} />
       <EffectComposer multisampling={0}>
         <Bloom
           intensity={ambience.bloom}
