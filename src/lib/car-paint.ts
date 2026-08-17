@@ -26,8 +26,9 @@ export function applyPaint(root: THREE.Object3D, custom: CarCustomization) {
       if ("roughness" in next) next.roughness = props.roughness;
       if ("metalness" in next) next.metalness = props.metalness;
       if ("emissive" in next && next.emissive) {
-        next.emissive = color.clone().multiplyScalar(custom.finish === "matte" ? 0.02 : 0.08);
+        next.emissive = color.clone().multiplyScalar(custom.finish === "matte" ? 0 : 0.015);
       }
+      if ("envMapIntensity" in next) next.envMapIntensity = 0.65;
       return next;
     }) as THREE.Material[] as unknown as THREE.Material;
     if (Array.isArray(mesh.material) && mesh.material.length === 1) mesh.material = mesh.material[0]!;

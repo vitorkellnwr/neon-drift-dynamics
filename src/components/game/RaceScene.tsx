@@ -3,6 +3,8 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Environment, Sky, Stars, useGLTF } from "@react-three/drei";
 import {
   Bloom,
+  BrightnessContrast,
+  HueSaturation,
   ChromaticAberration,
   DepthOfField,
   EffectComposer,
@@ -63,46 +65,68 @@ const AMBIENCE: Record<Ambience, AmbiencePreset> = {
   "night-neon": {
     background: "#070b16",
     fog: ["#070b16", 90, 480],
-    hemi: { intensity: 1.1, sky: "#9dbcff", ground: "#161c2c" },
-    ambient: 0.35,
-    sun: { position: [80, 140, 60], intensity: 1.1, color: "#cfe0ff" },
-    rim: { position: [-70, 60, -90], intensity: 1.2, color: "#ff5ea8" },
+    hemi: { intensity: 0.45, sky: "#7f9ad6", ground: "#0e1220" },
+    ambient: 0.14,
+    sun: { position: [80, 140, 60], intensity: 0.45, color: "#b9caea" },
+    rim: { position: [-70, 60, -90], intensity: 0.45, color: "#ff5ea8" },
     stars: true,
     headlights: true,
-    bloom: 0.85,
+    bloom: 0.32,
   },
   "dusk-mountain": {
     background: "#1b2436",
     fog: ["#26314a", 120, 900],
-    hemi: { intensity: 1.4, sky: "#ffd0a8", ground: "#22283a" },
-    ambient: 0.4,
-    sun: { position: [-160, 60, 120], intensity: 2.6, color: "#ffb473" },
-    rim: { position: [120, 40, -140], intensity: 0.7, color: "#6f8cff" },
+    hemi: { intensity: 1.0, sky: "#e8bb95", ground: "#242a3a" },
+    ambient: 0.3,
+    sun: { position: [-160, 60, 120], intensity: 2.0, color: "#f0a068" },
+    rim: { position: [120, 40, -140], intensity: 0.3, color: "#6f8cff" },
     sky: { sunPosition: [-0.7, 0.06, 0.4], turbidity: 8, rayleigh: 3.2 },
     headlights: true,
-    bloom: 0.5,
+    bloom: 0.22,
   },
   "harbor-night": {
     background: "#05080f",
     fog: ["#070c15", 70, 420],
-    hemi: { intensity: 0.7, sky: "#7ea0ff", ground: "#0b1020" },
-    ambient: 0.22,
-    sun: { position: [60, 120, -40], intensity: 0.7, color: "#a8c4ff" },
-    rim: { position: [-90, 50, 80], intensity: 1.4, color: "#ffca7a" },
+    hemi: { intensity: 0.32, sky: "#6d89dd", ground: "#080c18" },
+    ambient: 0.1,
+    sun: { position: [60, 120, -40], intensity: 0.3, color: "#93aee6" },
+    rim: { position: [-90, 50, 80], intensity: 0.5, color: "#ffca7a" },
     stars: true,
     headlights: true,
-    bloom: 1.1,
+    bloom: 0.4,
   },
   stadium: {
     background: "#080a12",
     fog: ["#0a0e1a", 140, 700],
-    hemi: { intensity: 1, sky: "#dfeaff", ground: "#141a28" },
-    ambient: 0.5,
-    sun: { position: [0, 200, 0], intensity: 2.4, color: "#eef5ff" },
-    rim: { position: [-140, 80, -60], intensity: 1, color: "#7ce9ff" },
+    hemi: { intensity: 0.5, sky: "#c3d3ea", ground: "#101623" },
+    ambient: 0.18,
+    sun: { position: [0, 200, 0], intensity: 1.2, color: "#eef5ff" },
+    rim: { position: [-140, 80, -60], intensity: 0.4, color: "#7ce9ff" },
     stars: true,
     headlights: false,
-    bloom: 0.95,
+    bloom: 0.35,
+  },
+  "canyon-dawn": {
+    background: "#2a2230",
+    fog: ["#4a3a3a", 140, 1000],
+    hemi: { intensity: 0.7, sky: "#ffc79a", ground: "#3a2a24" },
+    ambient: 0.2,
+    sun: { position: [180, 70, -140], intensity: 1.5, color: "#ffb478" },
+    rim: { position: [-160, 50, 120], intensity: 0.35, color: "#8fa7ff" },
+    sky: { sunPosition: [0.8, 0.1, -0.5], turbidity: 6, rayleigh: 2.4 },
+    headlights: false,
+    bloom: 0.24,
+  },
+  "snow-night": {
+    background: "#0c111c",
+    fog: ["#141c2c", 60, 420],
+    hemi: { intensity: 0.55, sky: "#b9cbe8", ground: "#2a3346" },
+    ambient: 0.16,
+    sun: { position: [-90, 120, 80], intensity: 0.5, color: "#cddcf5" },
+    rim: { position: [110, 50, -90], intensity: 0.3, color: "#7ce9ff" },
+    stars: true,
+    headlights: true,
+    bloom: 0.3,
   },
 };
 
@@ -721,32 +745,35 @@ function Car({
       <primitive object={model} visible={!firstPerson} />
       {/* Underglow pool on the asphalt */}
       <pointLight
-        position={[0, 0.35, 0]}
-        intensity={18}
-        distance={9}
+        position={[0, 0.3, 0]}
+        intensity={3.2}
+        distance={6}
+        decay={2}
         color={customization.underglow}
       />
       {/* Tail lights */}
-      <pointLight position={[0, 0.6, 2.4]} intensity={9} distance={7} color="#ff2d55" />
+      <pointLight position={[0, 0.6, 2.4]} intensity={1.6} distance={4.5} decay={2} color="#ff2d55" />
       {headlights && (
         <>
           <spotLight
             position={[0.7, 0.75, -1.9]}
             target-position={[3, -1, -40]}
-            angle={0.55}
-            penumbra={0.6}
-            intensity={260}
-            distance={90}
-            color="#fff2d0"
+            angle={0.5}
+            penumbra={0.75}
+            intensity={90}
+            distance={70}
+            decay={2}
+            color="#ffeccb"
           />
           <spotLight
             position={[-0.7, 0.75, -1.9]}
             target-position={[-3, -1, -40]}
-            angle={0.55}
-            penumbra={0.6}
-            intensity={260}
-            distance={90}
-            color="#fff2d0"
+            angle={0.5}
+            penumbra={0.75}
+            intensity={90}
+            distance={70}
+            decay={2}
+            color="#ffeccb"
           />
         </>
       )}
@@ -837,8 +864,9 @@ export default function RaceScene({
       dpr={[1, 2]}
       gl={{ antialias: true, powerPreference: "high-performance" }}
       onCreated={({ gl }) => {
-        gl.toneMapping = THREE.ACESFilmicToneMapping;
-        gl.toneMappingExposure = 1.05;
+        gl.toneMapping = THREE.AgXToneMapping;
+        gl.toneMappingExposure = 1.45;
+        gl.shadowMap.type = THREE.PCFSoftShadowMap;
       }}
     >
       <color attach="background" args={[ambience.background]} />
@@ -902,12 +930,12 @@ export default function RaceScene({
           onTelemetry={reportTelemetry}
         />
       )}
-      <Environment preset={ambience.sky ? "sunset" : "night"} environmentIntensity={0.55} />
+      <Environment preset={ambience.sky ? "sunset" : "night"} environmentIntensity={0.45} />
       <EffectComposer multisampling={0}>
         <Bloom
           intensity={ambience.bloom}
-          luminanceThreshold={0.3}
-          luminanceSmoothing={0.55}
+          luminanceThreshold={0.82}
+          luminanceSmoothing={0.3}
           mipmapBlur
         />
         {cameraMode === "cinematic" ? (
@@ -915,9 +943,11 @@ export default function RaceScene({
         ) : (
           <></>
         )}
-        <ChromaticAberration offset={[0.0006, 0.0009]} />
-        <Noise premultiply blendFunction={BlendFunction.SOFT_LIGHT} opacity={0.28} />
-        <Vignette eskil={false} offset={0.22} darkness={0.85} />
+        <BrightnessContrast brightness={-0.04} contrast={0.14} />
+        <HueSaturation saturation={0.12} />
+        <ChromaticAberration offset={[0.0004, 0.0006]} />
+        <Noise premultiply blendFunction={BlendFunction.SOFT_LIGHT} opacity={0.12} />
+        <Vignette eskil={false} offset={0.2} darkness={0.55} />
         <SMAA />
       </EffectComposer>
 
