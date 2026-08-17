@@ -147,6 +147,7 @@ export default function DriftSimulator() {
               tune={tune}
               arduinoRef={arduino.inputRef}
               onTelemetry={handleTelemetry}
+              onCameraChange={setCameraLabel}
             />
           ) : (
             <div className="absolute inset-0">
@@ -161,7 +162,9 @@ export default function DriftSimulator() {
           telemetry={telemetry}
           onOpenMenu={() => setRacing(false)}
           arduinoConnected={arduino.status === "connected"}
+          cameraLabel={cameraLabel}
         />
+
       ) : (
         <MainMenu
           cars={cars}
