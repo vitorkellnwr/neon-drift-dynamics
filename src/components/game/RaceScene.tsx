@@ -3,6 +3,8 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Environment, Sky, Stars, useGLTF } from "@react-three/drei";
 import {
   Bloom,
+  BrightnessContrast,
+  HueSaturation,
   ChromaticAberration,
   DepthOfField,
   EffectComposer,
