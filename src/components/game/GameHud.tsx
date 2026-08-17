@@ -4,10 +4,12 @@ export default function GameHud({
   telemetry,
   onOpenMenu,
   arduinoConnected,
+  cameraLabel = "Perseguição",
 }: {
   telemetry: RaceTelemetry;
   onOpenMenu: () => void;
   arduinoConnected: boolean;
+  cameraLabel?: string;
 }) {
   const clamped = Math.min(telemetry.speed, 240);
   const angle = -120 + (clamped / 240) * 240;
@@ -21,7 +23,7 @@ export default function GameHud({
           </span>
         )}
         <span className="panel-glass rounded-lg px-3 py-2 text-xs font-bold tracking-[0.18em] text-primary uppercase">
-          📷 Câmera (C)
+          📷 {cameraLabel} (C)
         </span>
         <button
           type="button"
@@ -31,6 +33,7 @@ export default function GameHud({
           ⚙️ Menu Inicial (ESC)
         </button>
       </div>
+
 
 
       <div className="pointer-events-auto absolute top-5 left-5 flex flex-col gap-2 md:top-7 md:left-7">

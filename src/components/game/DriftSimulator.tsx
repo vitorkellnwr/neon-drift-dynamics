@@ -42,6 +42,7 @@ export default function DriftSimulator() {
   const [selectedTrackId, setSelectedTrackId] = useState(DEFAULT_TRACK.id);
   const [customizations, setCustomizations] = useState<Record<string, CarCustomization>>({});
   const [racing, setRacing] = useState(false);
+  const [cameraLabel, setCameraLabel] = useState("Perseguição");
   const [telemetry, setTelemetry] = useState<RaceTelemetry>({
     speed: 0,
     score: 0,
@@ -147,6 +148,7 @@ export default function DriftSimulator() {
               tune={tune}
               arduinoRef={arduino.inputRef}
               onTelemetry={handleTelemetry}
+              onCameraChange={setCameraLabel}
             />
           ) : (
             <div className="absolute inset-0">
@@ -161,7 +163,9 @@ export default function DriftSimulator() {
           telemetry={telemetry}
           onOpenMenu={() => setRacing(false)}
           arduinoConnected={arduino.status === "connected"}
+          cameraLabel={cameraLabel}
         />
+
       ) : (
         <MainMenu
           cars={cars}
