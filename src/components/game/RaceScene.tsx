@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Sky, Stars, useGLTF } from "@react-three/drei";
+import { Environment, Sky, Stars, useGLTF } from "@react-three/drei";
 import {
   Bloom,
   ChromaticAberration,
+  DepthOfField,
   EffectComposer,
   Noise,
+  SMAA,
   Vignette,
 } from "@react-three/postprocessing";
 import { BlendFunction } from "postprocessing";
@@ -24,10 +26,25 @@ import {
 } from "@/lib/garage";
 import { buildProceduralTrack } from "@/lib/procedural-tracks";
 import { applyPaint } from "@/lib/car-paint";
+import { setupWheels, updateWheels } from "@/lib/wheels";
 import { CarAudio } from "@/lib/car-audio";
 import { SkidMarks, SmokeSystem, SparkSystem } from "@/lib/drift-fx";
 
+export type CameraMode = "chase" | "close" | "cinematic" | "cockpit" | "hood" | "top";
+
+export const CAMERA_MODES: CameraMode[] = ["chase", "close", "cinematic", "cockpit", "hood", "top"];
+
+export const CAMERA_LABELS: Record<CameraMode, string> = {
+  chase: "Perseguição",
+  close: "Colada",
+  cinematic: "Cinema",
+  cockpit: "Cockpit",
+  hood: "Capô",
+  top: "Aérea",
+};
+
 type Fx = { smoke: SmokeSystem; skid: SkidMarks; sparks: SparkSystem };
+
 
 type AmbiencePreset = {
   background: string;
