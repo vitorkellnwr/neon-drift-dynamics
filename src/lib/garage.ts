@@ -93,7 +93,6 @@ export const BASE_TUNE: CarTune = { maxSpeed: 68, accel: 30, grip: 1, steer: 1 }
 
 export const BUILT_IN_CARS: Model3D[] = [
   {
-  {
     id: "builtin-skyline-r34",
     name: "Nissan Skyline GT-R R34",
     url: skylineR34.url,
