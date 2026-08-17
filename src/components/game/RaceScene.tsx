@@ -865,7 +865,7 @@ export default function RaceScene({
       gl={{ antialias: true, powerPreference: "high-performance" }}
       onCreated={({ gl }) => {
         gl.toneMapping = THREE.AgXToneMapping;
-        gl.toneMappingExposure = 1.15;
+        gl.toneMappingExposure = 1.45;
         gl.shadowMap.type = THREE.PCFSoftShadowMap;
       }}
     >
@@ -947,7 +947,7 @@ export default function RaceScene({
         <HueSaturation saturation={0.12} />
         <ChromaticAberration offset={[0.0004, 0.0006]} />
         <Noise premultiply blendFunction={BlendFunction.SOFT_LIGHT} opacity={0.12} />
-        <Vignette eskil={false} offset={0.2} darkness={0.7} />
+        <Vignette eskil={false} offset={0.2} darkness={0.55} />
         <SMAA />
       </EffectComposer>
 
