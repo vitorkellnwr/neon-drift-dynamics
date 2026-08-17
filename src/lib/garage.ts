@@ -1,4 +1,7 @@
 import carDefault from "@/assets/car-default.glb.asset.json";
+import skylineR34 from "@/assets/skyline-r34.glb.asset.json";
+import silviaCwest from "@/assets/silvia-s15-cwest.glb.asset.json";
+import silviaMak from "@/assets/silvia-s15-mak.glb.asset.json";
 import trackDefault from "@/assets/rocky-pass.glb.asset.json";
 
 export type CarTune = {
