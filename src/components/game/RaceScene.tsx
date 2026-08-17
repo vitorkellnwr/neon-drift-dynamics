@@ -761,6 +761,7 @@ export default function RaceScene({
   tune,
   arduinoRef,
   onTelemetry,
+  onCameraChange,
 }: {
   car: Model3D;
   track: Model3D;
@@ -768,18 +769,26 @@ export default function RaceScene({
   tune: CarTune;
   arduinoRef: React.RefObject<ArduinoInput>;
   onTelemetry: (telemetry: RaceTelemetry) => void;
+  onCameraChange?: (label: string) => void;
 }) {
   const keys = useKeyboard();
-  const [firstPerson, setFirstPerson] = useState(false);
+  const [cameraMode, setCameraMode] = useState<CameraMode>("chase");
   const [muted, setMuted] = useState(false);
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (event.code === "KeyC") setFirstPerson((value) => !value);
+      if (event.code === "KeyC") {
+        setCameraMode((value) => {
+          const next = CAMERA_MODES[(CAMERA_MODES.indexOf(value) + 1) % CAMERA_MODES.length]!;
+          return next;
+        });
+      }
       if (event.code === "KeyM") setMuted((value) => !value);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
+  useEffect(() => onCameraChange?.(CAMERA_LABELS[cameraMode]), [cameraMode, onCameraChange]);
+
   const trackRef = useRef<THREE.Object3D | null>(null);
   const [spawn, setSpawn] = useState<THREE.Vector3 | null>(null);
   const telemetryRef = useRef(onTelemetry);
