@@ -928,12 +928,12 @@ export default function RaceScene({
           onTelemetry={reportTelemetry}
         />
       )}
-      <Environment preset={ambience.sky ? "sunset" : "night"} environmentIntensity={0.55} />
+      <Environment preset={ambience.sky ? "sunset" : "night"} environmentIntensity={0.28} />
       <EffectComposer multisampling={0}>
         <Bloom
           intensity={ambience.bloom}
-          luminanceThreshold={0.3}
-          luminanceSmoothing={0.55}
+          luminanceThreshold={0.82}
+          luminanceSmoothing={0.3}
           mipmapBlur
         />
         {cameraMode === "cinematic" ? (
@@ -941,9 +941,11 @@ export default function RaceScene({
         ) : (
           <></>
         )}
-        <ChromaticAberration offset={[0.0006, 0.0009]} />
-        <Noise premultiply blendFunction={BlendFunction.SOFT_LIGHT} opacity={0.28} />
-        <Vignette eskil={false} offset={0.22} darkness={0.85} />
+        <BrightnessContrast brightness={-0.04} contrast={0.14} />
+        <HueSaturation saturation={0.12} />
+        <ChromaticAberration offset={[0.0004, 0.0006]} />
+        <Noise premultiply blendFunction={BlendFunction.SOFT_LIGHT} opacity={0.12} />
+        <Vignette eskil={false} offset={0.2} darkness={0.7} />
         <SMAA />
       </EffectComposer>
 
