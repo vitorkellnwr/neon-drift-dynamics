@@ -895,25 +895,32 @@ export default function RaceScene({
           spawn={spawn}
           controlsRef={keys}
           arduinoRef={arduinoRef}
-          firstPerson={firstPerson}
+          cameraMode={cameraMode}
           fx={fx}
           audio={audio}
           headlights={ambience.headlights}
           onTelemetry={reportTelemetry}
         />
       )}
+      <Environment preset={ambience.sky ? "sunset" : "night"} environmentIntensity={0.55} />
       <EffectComposer multisampling={0}>
         <Bloom
           intensity={ambience.bloom}
-          luminanceThreshold={0.32}
-          luminanceSmoothing={0.5}
+          luminanceThreshold={0.3}
+          luminanceSmoothing={0.55}
           mipmapBlur
         />
+        {cameraMode === "cinematic" ? (
+          <DepthOfField focusDistance={0.012} focalLength={0.05} bokehScale={3.5} />
+        ) : (
+          <></>
+        )}
         <ChromaticAberration offset={[0.0006, 0.0009]} />
-
-        <Noise premultiply blendFunction={BlendFunction.SOFT_LIGHT} opacity={0.35} />
+        <Noise premultiply blendFunction={BlendFunction.SOFT_LIGHT} opacity={0.28} />
         <Vignette eskil={false} offset={0.22} darkness={0.85} />
+        <SMAA />
       </EffectComposer>
+
     </Canvas>
   );
 }
