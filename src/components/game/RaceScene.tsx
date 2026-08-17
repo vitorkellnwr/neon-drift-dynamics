@@ -505,60 +505,113 @@ function Car({
       body.current.quaternion.slerp(car.quat, 1 - Math.pow(0.0001, delta));
     }
 
-    if (firstPersonRef.current) {
-      // Cockpit view: sits just above the dashboard, looking down the heading.
-      const eye = car.position
+    const mode = cameraModeRef.current;
+    const speedNorm = THREE.MathUtils.clamp(Math.abs(car.speed) / Math.max(setup.maxSpeed, 1), 0, 1);
+    const back = new THREE.Vector3(Math.sin(car.heading), 0, Math.cos(car.heading));
+    let desired: THREE.Vector3;
+    let lookAt: THREE.Vector3;
+    let follow = 0.0015;
+    let baseFov = 58;
+    let clampToGround = true;
+
+    if (mode === "cockpit") {
+      // Sits just above the dashboard, looking down the heading.
+      desired = car.position
         .clone()
         .add(car.normal.clone().multiplyScalar(1.25))
         .add(forwardDir.clone().multiplyScalar(0.15));
-      if (!car.camReady) {
-        camera.position.copy(eye);
-        car.camReady = true;
-      } else {
-        camera.position.lerp(eye, 1 - Math.pow(0.00001, delta));
-      }
-      const look = eye.clone().add(forwardDir.clone().multiplyScalar(30));
-      camera.lookAt(look.x, look.y, look.z);
-    } else {
-      // Chase camera, following the terrain tilt slightly.
-      const camTarget = car.position
+      lookAt = desired.clone().add(forwardDir.clone().multiplyScalar(30));
+      follow = 0.00001;
+      baseFov = 72;
+      clampToGround = false;
+    } else if (mode === "hood") {
+      // Bumper cam glued to the nose of the car.
+      desired = car.position
         .clone()
-        .add(new THREE.Vector3(Math.sin(car.heading) * 10.5, 0, Math.cos(car.heading) * 10.5))
+        .add(car.normal.clone().multiplyScalar(0.85))
+        .add(forwardDir.clone().multiplyScalar(1.9));
+      lookAt = desired.clone().add(forwardDir.clone().multiplyScalar(40));
+      follow = 0.00001;
+      baseFov = 78;
+      clampToGround = false;
+    } else if (mode === "close") {
+      // Tight over-the-shoulder chase.
+      desired = car.position
+        .clone()
+        .add(back.clone().multiplyScalar(5.4))
+        .add(car.normal.clone().multiplyScalar(2.1));
+      lookAt = car.position.clone().setY(car.position.y + 1.1);
+      follow = 0.0004;
+      baseFov = 66;
+    } else if (mode === "cinematic") {
+      // Long-lens, low, slowly orbiting rig with a lazy follow.
+      const orbit = performance.now() / 4200;
+      const radius = 9 + Math.sin(orbit * 0.7) * 2.5;
+      desired = car.position
+        .clone()
+        .add(
+          new THREE.Vector3(
+            Math.sin(car.heading + Math.sin(orbit) * 0.9) * radius,
+            0,
+            Math.cos(car.heading + Math.sin(orbit) * 0.9) * radius,
+          ),
+        )
+        .add(car.normal.clone().multiplyScalar(1.6 + Math.sin(orbit * 1.3) * 0.5));
+      lookAt = car.position.clone().setY(car.position.y + 0.9);
+      follow = 0.08;
+      baseFov = 36;
+    } else if (mode === "top") {
+      desired = car.position
+        .clone()
+        .add(back.clone().multiplyScalar(6))
+        .add(car.normal.clone().multiplyScalar(16));
+      lookAt = car.position.clone();
+      follow = 0.004;
+      baseFov = 52;
+    } else {
+      // Default chase camera, following the terrain tilt slightly.
+      desired = car.position
+        .clone()
+        .add(back.clone().multiplyScalar(10.5))
         .add(car.normal.clone().multiplyScalar(4.4));
-      // Keep the camera above the track surface, otherwise it ends up inside the
-      // geometry and the screen turns black. The ceiling keeps tunnel roofs from
-      // shoving the camera on top of the map.
-      if (track) {
-        const camGround = sampleGround(
-          raycaster.current,
-          track,
-          camTarget.x,
-          camTarget.z,
-          camTarget.y + 40,
-          120,
-          car.position.y + 3,
-        );
-        if (camGround) camTarget.y = Math.max(camTarget.y, camGround.point.y + 2.2);
-      }
-      if (!car.camReady) {
-        camera.position.copy(camTarget);
-        car.camReady = true;
-      } else {
-        camera.position.lerp(camTarget, 1 - Math.pow(0.0015, delta));
+      lookAt = car.position.clone().setY(car.position.y + 1.5);
+    }
+
+    // Keep the camera above the track surface, otherwise it ends up inside the
+    // geometry and the screen turns black. The ceiling keeps tunnel roofs from
+    // shoving the camera on top of the map.
+    if (track && clampToGround) {
+      const camGround = sampleGround(
+        raycaster.current,
+        track,
+        desired.x,
+        desired.z,
+        desired.y + 40,
+        120,
+        car.position.y + (mode === "top" ? 20 : 3),
+      );
+      if (camGround) desired.y = Math.max(desired.y, camGround.point.y + 2.2);
+    }
+    if (!car.camReady) {
+      camera.position.copy(desired);
+      car.camReady = true;
+    } else {
+      camera.position.lerp(desired, 1 - Math.pow(follow, delta));
+      if (clampToGround) {
         const floor = car.position.y + 0.8;
         if (camera.position.y < floor) camera.position.y = floor;
       }
-      camera.lookAt(car.position.x, car.position.y + 1.5, car.position.z);
     }
+    camera.lookAt(lookAt.x, lookAt.y, lookAt.z);
 
     // --- Speed sensation: FOV stretch + impact shake ---
     const perspective = camera as THREE.PerspectiveCamera;
     if (perspective.isPerspectiveCamera) {
-      const norm = THREE.MathUtils.clamp(Math.abs(car.speed) / Math.max(setup.maxSpeed, 1), 0, 1);
-      const targetFov = (firstPersonRef.current ? 72 : 58) + norm * 20;
+      const targetFov = baseFov + speedNorm * (mode === "cinematic" ? 6 : 20);
       perspective.fov = THREE.MathUtils.lerp(perspective.fov, targetFov, 1 - Math.pow(0.02, delta));
       perspective.updateProjectionMatrix();
     }
+
     car.shake = Math.max(0, car.shake - delta * 1.8);
     const rumble = car.shake * 0.5 + (car.grounded ? 0 : 0) + Math.abs(car.speed) / setup.maxSpeed * 0.035;
     if (rumble > 0.001) {
