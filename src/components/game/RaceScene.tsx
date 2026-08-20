@@ -793,6 +793,7 @@ export default function RaceScene({
   arduinoRef,
   onTelemetry,
   onCameraChange,
+  onQualityChange,
 }: {
   car: Model3D;
   track: Model3D;
@@ -801,9 +802,11 @@ export default function RaceScene({
   arduinoRef: React.RefObject<ArduinoInput>;
   onTelemetry: (telemetry: RaceTelemetry) => void;
   onCameraChange?: (label: string) => void;
+  onQualityChange?: (label: string) => void;
 }) {
   const keys = useKeyboard();
   const [cameraMode, setCameraMode] = useState<CameraMode>("chase");
+  const [quality, setQuality] = useState<QualityLevel>("alto");
   const [muted, setMuted] = useState(false);
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -813,12 +816,20 @@ export default function RaceScene({
           return next;
         });
       }
+      if (event.code === "KeyG") {
+        setQuality(
+          (value) => QUALITY_LEVELS[(QUALITY_LEVELS.indexOf(value) + 1) % QUALITY_LEVELS.length]!,
+        );
+      }
       if (event.code === "KeyM") setMuted((value) => !value);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
   useEffect(() => onCameraChange?.(CAMERA_LABELS[cameraMode]), [cameraMode, onCameraChange]);
+  useEffect(() => onQualityChange?.(QUALITY_LABELS[quality]), [quality, onQualityChange]);
+  const gfx = GRAPHICS[quality];
+  const focusPoint = useMemo(() => new THREE.Vector3(), []);
 
   const trackRef = useRef<THREE.Object3D | null>(null);
   const [spawn, setSpawn] = useState<THREE.Vector3 | null>(null);
