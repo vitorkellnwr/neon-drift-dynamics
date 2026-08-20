@@ -45,6 +45,86 @@ export const CAMERA_LABELS: Record<CameraMode, string> = {
   top: "Aérea",
 };
 
+export type QualityLevel = "baixo" | "medio" | "alto" | "ultra";
+
+export const QUALITY_LEVELS: QualityLevel[] = ["baixo", "medio", "alto", "ultra"];
+
+export const QUALITY_LABELS: Record<QualityLevel, string> = {
+  baixo: "Baixo",
+  medio: "Médio",
+  alto: "Alto",
+  ultra: "Ultra",
+};
+
+type GraphicsPreset = {
+  dpr: [number, number];
+  shadows: boolean;
+  shadowMap: number;
+  envIntensity: number;
+  bloomMultiplier: number;
+  dof: boolean;
+  grain: number;
+  aberration: number;
+  vignette: number;
+  smaa: boolean;
+  exposure: number;
+};
+
+export const GRAPHICS: Record<QualityLevel, GraphicsPreset> = {
+  baixo: {
+    dpr: [0.7, 1],
+    shadows: false,
+    shadowMap: 512,
+    envIntensity: 0.35,
+    bloomMultiplier: 0.5,
+    dof: false,
+    grain: 0,
+    aberration: 0,
+    vignette: 0.35,
+    smaa: false,
+    exposure: 1.5,
+  },
+  medio: {
+    dpr: [1, 1.25],
+    shadows: true,
+    shadowMap: 1024,
+    envIntensity: 0.4,
+    bloomMultiplier: 0.8,
+    dof: false,
+    grain: 0.05,
+    aberration: 0.0002,
+    vignette: 0.45,
+    smaa: true,
+    exposure: 1.45,
+  },
+  alto: {
+    dpr: [1, 1.75],
+    shadows: true,
+    shadowMap: 2048,
+    envIntensity: 0.45,
+    bloomMultiplier: 1,
+    dof: true,
+    grain: 0.09,
+    aberration: 0.00035,
+    vignette: 0.55,
+    smaa: true,
+    exposure: 1.45,
+  },
+  ultra: {
+    dpr: [1.25, 2],
+    shadows: true,
+    shadowMap: 4096,
+    envIntensity: 0.55,
+    bloomMultiplier: 1.15,
+    dof: true,
+    grain: 0.11,
+    aberration: 0.0005,
+    vignette: 0.6,
+    smaa: true,
+    exposure: 1.42,
+  },
+};
+
 type Fx = { smoke: SmokeSystem; skid: SkidMarks; sparks: SparkSystem };
 
 
@@ -304,6 +384,7 @@ function Car({
   audio,
   headlights,
   onTelemetry,
+  focusPoint,
 }: {
   url: string;
   customization: CarCustomization;
@@ -317,7 +398,7 @@ function Car({
   audio: CarAudio;
   headlights: boolean;
   onTelemetry: (telemetry: RaceTelemetry) => void;
-
+  focusPoint: THREE.Vector3;
 }) {
   const { scene } = useGLTF(url);
   const model = useMemo(() => {
@@ -725,6 +806,9 @@ function Car({
       delta,
     );
 
+    // Focus target for the cinematic depth of field (always the car itself).
+    focusPoint.set(car.position.x, car.position.y + 0.8, car.position.z);
+
     const now = performance.now();
 
     if (now - lastReport.current > 90) {
@@ -789,6 +873,7 @@ export default function RaceScene({
   arduinoRef,
   onTelemetry,
   onCameraChange,
+  onQualityChange,
 }: {
   car: Model3D;
   track: Model3D;
@@ -797,9 +882,11 @@ export default function RaceScene({
   arduinoRef: React.RefObject<ArduinoInput>;
   onTelemetry: (telemetry: RaceTelemetry) => void;
   onCameraChange?: (label: string) => void;
+  onQualityChange?: (label: string) => void;
 }) {
   const keys = useKeyboard();
   const [cameraMode, setCameraMode] = useState<CameraMode>("chase");
+  const [quality, setQuality] = useState<QualityLevel>("alto");
   const [muted, setMuted] = useState(false);
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -809,12 +896,20 @@ export default function RaceScene({
           return next;
         });
       }
+      if (event.code === "KeyG") {
+        setQuality(
+          (value) => QUALITY_LEVELS[(QUALITY_LEVELS.indexOf(value) + 1) % QUALITY_LEVELS.length]!,
+        );
+      }
       if (event.code === "KeyM") setMuted((value) => !value);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
   useEffect(() => onCameraChange?.(CAMERA_LABELS[cameraMode]), [cameraMode, onCameraChange]);
+  useEffect(() => onQualityChange?.(QUALITY_LABELS[quality]), [quality, onQualityChange]);
+  const gfx = GRAPHICS[quality];
+  const focusPoint = useMemo(() => new THREE.Vector3(), []);
 
   const trackRef = useRef<THREE.Object3D | null>(null);
   const [spawn, setSpawn] = useState<THREE.Vector3 | null>(null);
