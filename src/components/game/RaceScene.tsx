@@ -45,6 +45,86 @@ export const CAMERA_LABELS: Record<CameraMode, string> = {
   top: "Aérea",
 };
 
+export type QualityLevel = "baixo" | "medio" | "alto" | "ultra";
+
+export const QUALITY_LEVELS: QualityLevel[] = ["baixo", "medio", "alto", "ultra"];
+
+export const QUALITY_LABELS: Record<QualityLevel, string> = {
+  baixo: "Baixo",
+  medio: "Médio",
+  alto: "Alto",
+  ultra: "Ultra",
+};
+
+type GraphicsPreset = {
+  dpr: [number, number];
+  shadows: boolean;
+  shadowMap: number;
+  envIntensity: number;
+  bloomMultiplier: number;
+  dof: boolean;
+  grain: number;
+  aberration: number;
+  vignette: number;
+  smaa: boolean;
+  exposure: number;
+};
+
+export const GRAPHICS: Record<QualityLevel, GraphicsPreset> = {
+  baixo: {
+    dpr: [0.7, 1],
+    shadows: false,
+    shadowMap: 512,
+    envIntensity: 0.35,
+    bloomMultiplier: 0.5,
+    dof: false,
+    grain: 0,
+    aberration: 0,
+    vignette: 0.35,
+    smaa: false,
+    exposure: 1.5,
+  },
+  medio: {
+    dpr: [1, 1.25],
+    shadows: true,
+    shadowMap: 1024,
+    envIntensity: 0.4,
+    bloomMultiplier: 0.8,
+    dof: false,
+    grain: 0.05,
+    aberration: 0.0002,
+    vignette: 0.45,
+    smaa: true,
+    exposure: 1.45,
+  },
+  alto: {
+    dpr: [1, 1.75],
+    shadows: true,
+    shadowMap: 2048,
+    envIntensity: 0.45,
+    bloomMultiplier: 1,
+    dof: true,
+    grain: 0.09,
+    aberration: 0.00035,
+    vignette: 0.55,
+    smaa: true,
+    exposure: 1.45,
+  },
+  ultra: {
+    dpr: [1.25, 2],
+    shadows: true,
+    shadowMap: 4096,
+    envIntensity: 0.55,
+    bloomMultiplier: 1.15,
+    dof: true,
+    grain: 0.11,
+    aberration: 0.0005,
+    vignette: 0.6,
+    smaa: true,
+    exposure: 1.42,
+  },
+};
+
 type Fx = { smoke: SmokeSystem; skid: SkidMarks; sparks: SparkSystem };
 
 
