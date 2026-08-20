@@ -726,6 +726,9 @@ function Car({
       delta,
     );
 
+    // Focus target for the cinematic depth of field (always the car itself).
+    focusPoint.set(car.position.x, car.position.y + 0.8, car.position.z);
+
     const now = performance.now();
 
     if (now - lastReport.current > 90) {
