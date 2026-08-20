@@ -304,6 +304,7 @@ function Car({
   audio,
   headlights,
   onTelemetry,
+  focusPoint,
 }: {
   url: string;
   customization: CarCustomization;
@@ -317,7 +318,7 @@ function Car({
   audio: CarAudio;
   headlights: boolean;
   onTelemetry: (telemetry: RaceTelemetry) => void;
-
+  focusPoint: THREE.Vector3;
 }) {
   const { scene } = useGLTF(url);
   const model = useMemo(() => {
